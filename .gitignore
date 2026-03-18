@@ -1,0 +1,44 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+*.log.*
+
+# Test reports
+reports/
+allure-results/
+allure-report/
+
+# Downloads
+downloads/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Selenium
+geckodriver.log
+chromedriver.log
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project specific
+*.pyc
+__pycache__/
+.pytest_cache/
