@@ -21,9 +21,3 @@ def generate_password(length=6):
     characters = string.ascii_letters + string.digits
     password = ''.join(random.choices(characters, k=length))
     return password
-
-def generate_name():
-    """
-    Генерирует имя (всегда sergei для соответствия email)
-    """
-    return "sergei"

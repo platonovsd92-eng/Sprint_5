@@ -1,5 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 import sys
@@ -8,106 +6,72 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from locators import *
+from config import URLs  # Импортируем URL из конфига
 from helpers.data_generator import generate_unique_email, generate_password
 
 
 class TestLogin:
 
-    def create_test_user(self, driver):
-        """Создает тестового пользователя и возвращает его email и пароль"""
-        driver.get("https://stellarburgers.education-services.ru/register")
-        email = generate_unique_email()
-        password = generate_password(6)
-        name = "sergei"
-
-        WebDriverWait(driver, 5).until(
-            expected_conditions.element_to_be_clickable(REGISTER_NAME_INPUT)).send_keys(name)
-        driver.find_element(*REGISTER_EMAIL_INPUT).send_keys(email)
-        driver.find_element(*REGISTER_PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*REGISTER_BUTTON).click()
-
-        WebDriverWait(driver, 5).until(
-            expected_conditions.url_contains("/login"))
-        return email, password
-
-    def test_login_main_page_button(self):
+    def test_login_main_page_button(self, driver, registered_user):
         """Вход по кнопке «Войти в аккаунт» на главной странице"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-
-        # Создаем пользователя
-        email, password = self.create_test_user(driver)
-
-        # Переходим на главную и кликаем «Войти в аккаунт»
-        driver.get("https://stellarburgers.education-services.ru/")
+        # Переходим на главную
+        driver.get(URLs.MAIN_PAGE)
+        
+        # Кликаем «Войти в аккаунт»
         WebDriverWait(driver, 5).until(
             expected_conditions.element_to_be_clickable(MAIN_PAGE_LOGIN_BUTTON)).click()
 
-        # Вводим данные и входим
+        # Вводим данные зарегистрированного пользователя
         WebDriverWait(driver, 5).until(
-            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(email)
-        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(password)
+            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(registered_user["email"])
+        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(registered_user["password"])
         driver.find_element(*LOGIN_BUTTON).click()
 
-        # Проверяем успешный вход (появилась кнопка «Оформить заказ»)
-        order_button = WebDriverWait(driver, 5).until(
-            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON))
-        assert order_button.is_displayed()
+        # Проверяем успешный вход - ждем кнопку и проверяем в одном шаге
+        assert WebDriverWait(driver, 5).until(
+            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON)).is_displayed()
 
-        driver.quit()
-
-    def test_login_personal_account_button(self):
+    def test_login_personal_account_button(self, driver, registered_user):
         """Вход через кнопку «Личный кабинет»"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-
-        email, password = self.create_test_user(driver)
-
-        driver.get("https://stellarburgers.education-services.ru/")
+        driver.get(URLs.MAIN_PAGE)
+        
+        # Кликаем «Личный кабинет»
         WebDriverWait(driver, 5).until(
             expected_conditions.element_to_be_clickable(PERSONAL_ACCOUNT_BUTTON)).click()
 
+        # Вводим данные
         WebDriverWait(driver, 5).until(
-            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(email)
-        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(password)
+            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(registered_user["email"])
+        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(registered_user["password"])
         driver.find_element(*LOGIN_BUTTON).click()
 
-        order_button = WebDriverWait(driver, 5).until(
-            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON))
-        assert order_button.is_displayed()
+        # Проверка успешного входа
+        assert WebDriverWait(driver, 5).until(
+            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON)).is_displayed()
 
-        driver.quit()
-
-    def test_login_from_registration_form(self):
+    def test_login_from_registration_form(self, driver, registered_user):
         """Вход через кнопку в форме регистрации"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-
-        email, password = self.create_test_user(driver)
-
-        driver.get("https://stellarburgers.education-services.ru/register")
+        driver.get(URLs.REGISTER_PAGE)
+        
+        # Кликаем ссылку «Войти» на странице регистрации
         WebDriverWait(driver, 5).until(
             expected_conditions.element_to_be_clickable(LOGIN_LINK_FROM_REGISTER)).click()
 
+        # Вводим данные
         WebDriverWait(driver, 5).until(
-            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(email)
-        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(password)
+            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(registered_user["email"])
+        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(registered_user["password"])
         driver.find_element(*LOGIN_BUTTON).click()
 
-        order_button = WebDriverWait(driver, 5).until(
-            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON))
-        assert order_button.is_displayed()
+        # Проверка успешного входа
+        assert WebDriverWait(driver, 5).until(
+            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON)).is_displayed()
 
-        driver.quit()
-
-    def test_login_from_password_recovery(self):
+    def test_login_from_password_recovery(self, driver, registered_user):
         """Вход через кнопку в форме восстановления пароля"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-
-        email, password = self.create_test_user(driver)
-
-        driver.get("https://stellarburgers.education-services.ru/login")
+        driver.get(URLs.LOGIN_PAGE)
+        
+        # Кликаем ссылку восстановления пароля
         WebDriverWait(driver, 5).until(
             expected_conditions.element_to_be_clickable(RESTORE_PASSWORD_LINK)).click()
 
@@ -115,13 +79,12 @@ class TestLogin:
         WebDriverWait(driver, 5).until(
             expected_conditions.element_to_be_clickable(LOGIN_LINK_FROM_REGISTER)).click()
 
+        # Вводим данные
         WebDriverWait(driver, 5).until(
-            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(email)
-        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(password)
+            expected_conditions.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(registered_user["email"])
+        driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(registered_user["password"])
         driver.find_element(*LOGIN_BUTTON).click()
 
-        order_button = WebDriverWait(driver, 5).until(
-            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON))
-        assert order_button.is_displayed()
-
-        driver.quit()
+        # Проверка успешного входа
+        assert WebDriverWait(driver, 5).until(
+            expected_conditions.visibility_of_element_located(PLACE_ORDER_BUTTON)).is_displayed()

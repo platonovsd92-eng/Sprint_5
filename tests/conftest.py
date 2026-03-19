@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from helpers.data_generator import generate_unique_email, generate_password
+from config import URLs
 
 # Импортируем локаторы на уровне модуля
 from locators import (
@@ -30,7 +31,7 @@ def driver():
 def registered_user(driver):
     """Фикстура для создания зарегистрированного пользователя"""
     # Открываем страницу регистрации
-    driver.get("https://stellarburgers.education-services.ru/register")
+    driver.get(URLs.REGISTER_PAGE)
     
     # Генерируем данные
     email = generate_unique_email()
@@ -54,7 +55,7 @@ def registered_user(driver):
 def logged_in_user(driver, registered_user):
     """Фикстура для создания авторизованного пользователя"""
     # Выполняем вход
-    driver.get("https://stellarburgers.education-services.ru/login")
+    driver.get(URLs.LOGIN_PAGE)
     WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable(LOGIN_EMAIL_INPUT)).send_keys(registered_user["email"])
     driver.find_element(*LOGIN_PASSWORD_INPUT).send_keys(registered_user["password"])

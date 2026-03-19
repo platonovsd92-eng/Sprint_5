@@ -1,5 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 import sys
@@ -7,83 +5,56 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from locators import *
+from locators import *  # Импортируем все локаторы
+from config import URLs
 
 
 class TestConstructor:
 
-    def test_buns_section(self):
-        """Переход к разделу «Булки» в конструкторе"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-        driver.get("https://stellarburgers.education-services.ru/")
+    def test_buns_section_active_by_default(self, driver):
+        """Тест 1: Проверка, что по умолчанию активен раздел «Булки»"""
+        driver.get(URLs.MAIN_PAGE)
 
         # Ждем загрузки страницы
         WebDriverWait(driver, 10).until(
-            expected_conditions.presence_of_element_located((By.XPATH, "//*[text()='Булки']")))
+            expected_conditions.presence_of_element_located(BUNS_TEXT))
 
-        # Проверяем, что по умолчанию активен раздел «Булки»
-        active_section = driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]")
+        # Проверяем, что активный раздел - «Булки»
+        active_section = driver.find_element(*ACTIVE_SECTION)
         assert "Булки" in active_section.text
 
-        # Кликаем на раздел «Соусы»
-        sauces = driver.find_element(By.XPATH, "//*[text()='Соусы']")
-        sauces.click()
-        
-        # Ждем, что активный раздел сменился на «Соусы»
-        WebDriverWait(driver, 5).until(
-            lambda x: "Соусы" in driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]").text)
-
-        # Проверяем, что раздел «Соусы» стал активным
-        active_section = driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]")
-        assert "Соусы" in active_section.text
-
-        driver.quit()
-
-    def test_sauces_section(self):
-        """Переход к разделу «Соусы» в конструкторе"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-        driver.get("https://stellarburgers.education-services.ru/")
+    def test_switch_to_sauces_section(self, driver):
+        """Тест 2: Проверка переключения на раздел «Соусы»"""
+        driver.get(URLs.MAIN_PAGE)
 
         # Ждем загрузки страницы
         WebDriverWait(driver, 10).until(
-            expected_conditions.presence_of_element_located((By.XPATH, "//*[text()='Соусы']")))
+            expected_conditions.element_to_be_clickable(SAUCES_SECTION))
 
         # Кликаем на раздел «Соусы»
-        sauces = driver.find_element(By.XPATH, "//*[text()='Соусы']")
-        sauces.click()
-        
-        # Ждем, что раздел «Соусы» стал активным
-        WebDriverWait(driver, 5).until(
-            lambda x: "Соусы" in driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]").text)
+        driver.find_element(*SAUCES_SECTION).click()
 
-        # Проверяем
-        active_section = driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]")
+        # Проверяем, что активный раздел сменился на «Соусы»
+        WebDriverWait(driver, 5).until(
+            lambda x: "Соусы" in driver.find_element(*ACTIVE_SECTION).text)
+        
+        active_section = driver.find_element(*ACTIVE_SECTION)
         assert "Соусы" in active_section.text
 
-        driver.quit()
-
-    def test_fillings_section(self):
-        """Переход к разделу «Начинки» в конструкторе"""
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-        driver.get("https://stellarburgers.education-services.ru/")
+    def test_switch_to_fillings_section(self, driver):
+        """Тест 3: Проверка переключения на раздел «Начинки»"""
+        driver.get(URLs.MAIN_PAGE)
 
         # Ждем загрузки страницы
         WebDriverWait(driver, 10).until(
-            expected_conditions.presence_of_element_located((By.XPATH, "//*[text()='Начинки']")))
+            expected_conditions.element_to_be_clickable(FILLINGS_SECTION))
 
         # Кликаем на раздел «Начинки»
-        fillings = driver.find_element(By.XPATH, "//*[text()='Начинки']")
-        fillings.click()
-        
-        # Ждем, что раздел «Начинки» стал активным
+        driver.find_element(*FILLINGS_SECTION).click()
+
+        # Проверяем, что активный раздел сменился на «Начинки»
         WebDriverWait(driver, 5).until(
-            lambda x: "Начинки" in driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]").text)
-
-        # Проверяем
-        active_section = driver.find_element(By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]")
+            lambda x: "Начинки" in driver.find_element(*ACTIVE_SECTION).text)
+        
+        active_section = driver.find_element(*ACTIVE_SECTION)
         assert "Начинки" in active_section.text
-
-        driver.quit()
